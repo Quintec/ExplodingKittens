@@ -2,12 +2,43 @@ import java.util.*;
 public class Player {
 	
 	private Bot bot;
+	
 	private ArrayList<Card> hand;
 	private int idx;
+	private boolean playing;
 	
 	public Player(Bot b) {
 		this.bot = b;
 		this.hand = new ArrayList<Card>();
+		this.playing = true;
+	}
+	
+	public Bot getBot() {
+		return bot;
+	}
+	
+	public boolean isPlaying() {
+		return playing;
+	}
+	
+	public void lose() {
+		playing = false;
+	}
+	
+	public boolean hasDefuse() {
+		for (Card c : hand) {
+			if (c.getType() == Card.DEFUSE)
+				return true;
+		}
+		return false;
+	}
+	
+	public void removeDefuse() {
+		for (Card c : hand) {
+			if (c.getType() == Card.DEFUSE)
+				hand.remove(c);
+		}
+		throw new RuntimeException("[GAME] Tried to remove non existent defuse card");
 	}
 	
 	public void setHand(Card[] h) {
@@ -24,6 +55,13 @@ public class Player {
 		this.bot.seeTheFuture(future);
 	}
 	
+	public void drawCard(Card c) {
+		this.hand.add(c);
+		this.bot.selfCardDrawn(c);
+	}
+	
+	
+	
 	public Action getAction() {
 		Action a = this.bot.takeTurn();
 		if (a.getType() == Action.PLAY_CARD) {
@@ -37,5 +75,18 @@ public class Player {
 			this.hand.remove(a.getCard());
 		}
 		return a;
+	}
+	
+	public Card giveFavor(int pidx) {
+		Card c = this.bot.giveFavor(pidx);
+		if (!this.hand.contains(c))
+			throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " tried to give favor of card not in hand " + c);
+		this.hand.remove(c);
+		return c;
+	}
+	
+	public void receiveFavor(int pidx, Card c) {
+		this.hand.add(c);
+		this.bot.receiveFavor(pidx, c);
 	}
 }
