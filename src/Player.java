@@ -13,6 +13,10 @@ public class Player {
 		this.playing = true;
 	}
 	
+	public int getIdx() {
+		return idx;
+	}
+	
 	public Bot getBot() {
 		return bot;
 	}
@@ -34,14 +38,21 @@ public class Player {
 	}
 	
 	public void removeDefuse() {
-		for (Card c : hand) {
-			if (c.getType() == Card.DEFUSE)
-				hand.remove(c);
+		//System.out.println("before removal " + hand);
+		Iterator<Card> it = hand.iterator();
+		while (it.hasNext()) {
+			Card c = it.next();
+			if (c.getType() == Card.DEFUSE) {
+				it.remove();
+				//System.out.println("after removal " + hand);
+				return;
+			}
 		}
 		throw new RuntimeException("[GAME] Tried to remove non existent defuse card");
 	}
 	
 	public void setHand(Card[] h) {
+		System.out.println(Arrays.toString(h));
 		this.hand.addAll(Arrays.asList(h));
 		this.bot.setHand(h);
 	}
@@ -71,7 +82,7 @@ public class Player {
 				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " tried to play unplayable card " + a.getCard().toString());
 			int t = a.getTarget();
 			if (a.isTargetted() && (t < 0 || t > 4))
-				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " chose invalid target " + t);
+				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " chose invalid target " + t + " for card " + a.getCard());
 			this.hand.remove(a.getCard());
 		}
 		return a;

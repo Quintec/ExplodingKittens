@@ -7,7 +7,7 @@ public class Game {
 	private Player[] players;
 	
 	private boolean attacked;
-	private boolean skip;
+	private int cardsToDraw;
 	
 	public Game(Player[] pls) {
 		assert pls.length == 5;
@@ -36,13 +36,17 @@ public class Game {
 			p.setHand(d.dealHand());
 		}
 		this.attacked = false;
-		this.skip = false;
+		this.cardsToDraw = 1;
 		d.startShuffle();
 	}
 	
 	public void play() {
 		while (numPlaying() > 1)
 			round();
+		for (Player p : players) {
+			if (p.isPlaying())
+				System.out.println("Player " + p.getBot().getClass().getCanonicalName() + p.getIdx() + " wins");//PLACEHOLDER - return player? count wins, do match
+		}
 	}
 	
 	public int numPlaying() {
@@ -53,17 +57,18 @@ public class Game {
 	}
 	
 	public void round() {
-		for (int i = 0; i < players.length; i++) {
+		out: for (int i = 0; i < players.length; i++) {
 			if (!players[i].isPlaying())
 				continue;
 			
-			int cardsToDraw = attacked ? 2 : 1;
+			System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
+			cardsToDraw = attacked ? 2 : 1;
 			this.attacked = false;
-			this.skip = false;
-			Action a = players[i].getAction();
-			while (cardsToDraw > 0 && !this.skip) {
+			while (cardsToDraw > 0) {
+				Action a = players[i].getAction();
 				if (a.getType() == Action.DRAW_CARD) {
 					Card next = d.drawCard();
+					System.out.println("drawn " + next);
 					if (next.getType() == Card.EXPLODING_KITTEN) {
 						if (players[i].hasDefuse()) {
 							players[i].removeDefuse();
@@ -84,25 +89,26 @@ public class Game {
 								players[j].getBot().explodingKittenDrawn(i);
 								players[j].getBot().playerExploded(i);
 							}
-							continue;
+							continue out;
 						}
 					} else {
-						players[i].drawCard(d.drawCard());//DEAL WITH EXPLODING KITTEN DREW
+						players[i].drawCard(next);
 						cardsToDraw--;
 						for (int j = 0; j < players.length; j++) {
 							if (i == j)
 								continue;
 							players[j].getBot().cardDrawn(i);
 						}
-						continue;
 					}
-				}
-				boolean play = prepCard(i, a.getCard(), a.getTarget());
-				if (play) {
-					if (a.isTargetted()) {
-						playCardAt(i, a.getCard(), a.getTarget());
-					} else {
-						playCard(i, a.getCard());
+				} else {
+					System.out.println("playing " + a.getCard() + " againt " + a.getTarget());
+					boolean play = prepCard(i, a.getCard(), a.getTarget());
+					if (play) {
+						if (a.isTargetted()) {
+							playCardAt(i, a.getCard(), a.getTarget());
+						} else {
+							playCard(i, a.getCard());
+						}
 					}
 				}
 			}
@@ -126,11 +132,11 @@ public class Game {
 	private void playCard(int idx, Card c) {
 		switch (c.getType()) {
 		case Card.ATTACK:
-			this.skip = true;
 			this.attacked = true;
+			this.cardsToDraw = 0;
 			break;
 		case Card.SKIP:
-			this.skip = true;
+			this.cardsToDraw--;
 			break;
 		case Card.SHUFFLE:
 			d.shuffle();

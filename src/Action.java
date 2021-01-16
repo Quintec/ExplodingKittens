@@ -38,6 +38,6 @@ public class Action {
 	}
 	
 	public boolean isTargetted() {
-		return targetIndex == -1;
+		return targetIndex != -1;
 	}
 }

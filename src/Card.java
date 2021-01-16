@@ -46,6 +46,12 @@ public class Card {
 				return "<Shuffle cat>";
 			case SEE_THE_FUTURE:
 				return "<See the future cat>";
+			case FAVOR:
+				return "<Favor cat>";
+			case ATTACK:
+				return "<Attack cat>";
+			case EXPLODING_KITTEN:
+				return "<Exploding kitten>";
 			default:
 				throw new RuntimeException("Unknown card encountered: type " + type);
 		}
