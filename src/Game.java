@@ -60,7 +60,8 @@ public class Game {
 		out: for (int i = 0; i < players.length; i++) {
 			if (!players[i].isPlaying())
 				continue;
-			
+			if (numPlaying() == 1)
+				return;
 			System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
 			cardsToDraw = attacked ? 2 : 1;
 			this.attacked = false;
@@ -101,7 +102,7 @@ public class Game {
 						}
 					}
 				} else {
-					System.out.println("playing " + a.getCard() + " againt " + a.getTarget());
+					System.out.println("playing " + a.getCard() + " against " + a.getTarget());
 					boolean play = prepCard(i, a.getCard(), a.getTarget());
 					if (play) {
 						if (a.isTargetted()) {
@@ -121,6 +122,7 @@ public class Game {
 				continue;
 			Card against = players[j].getBot().cardPlayed(i, toPlay, tidx);
 			if (against != null) {
+				System.out.println("player " + j + " played nope");
 				if (against.getType() != Card.NOPE)
 					throw new RuntimeException("Bot " + players[j].getBot().getClass() + " tried to counter card with " + against);
 				return !prepCard(j, against, i);
@@ -152,8 +154,10 @@ public class Game {
 	private void playCardAt(int idx, Card c, int tidx) {
 		switch (c.getType()) {
 		case Card.FAVOR:
+			System.out.println("player " + idx + " getting favor");
 			Card card = players[tidx].giveFavor(idx);
 			players[idx].receiveFavor(tidx, card);
+			System.out.println("received " + card);
 			break;
 		}
 	}

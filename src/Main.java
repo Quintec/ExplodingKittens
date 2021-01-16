@@ -2,7 +2,7 @@
 public class Main {
 	public static void main(String[] args) {
 		//there MUST be exactly 5 players
-		Bot[] bots = new Bot[] {new PlayAllBot(), new PlayAllBot(), new DrawBot(), new DrawBot(), new DrawBot()};
+		Bot[] bots = new Bot[] {new PlayAllBot(), new PlayAllBot(), new PlayAllBot(), new PlayAllBot(), new PlayAllBot()};
 		
 		playGame(bots);
 	}
