@@ -25,6 +25,10 @@ public class Player {
 		return playing;
 	}
 	
+	public ArrayList<Card> getHand() {
+		return hand;
+	}
+	
 	public void lose() {
 		playing = false;
 	}
@@ -51,15 +55,29 @@ public class Player {
 		throw new RuntimeException("[GAME] Tried to remove non existent defuse card");
 	}
 	
+	public void removeNope() {
+		//System.out.println("before removal " + hand);
+		Iterator<Card> it = hand.iterator();
+		while (it.hasNext()) {
+			Card c = it.next();
+			if (c.getType() == Card.NOPE) {
+				it.remove();
+				//System.out.println("after removal " + hand);
+				return;
+			}
+		}
+		throw new RuntimeException("[GAME] Tried to remove non existent nope card");
+	}
+	
 	public void setHand(Card[] h) {
 		System.out.println(Arrays.toString(h));
 		this.hand.addAll(Arrays.asList(h));
 		this.bot.setHand(h);
 	}
 	
-	public void setIdx(int i) {
+	public void init(int i, GameView gv) {
 		this.idx = i;
-		this.bot.init(i);
+		this.bot.init(i, gv);
 	}
 	
 	public void seeFuture(Card[] future) {

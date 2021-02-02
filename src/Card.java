@@ -1,5 +1,15 @@
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.imageio.ImageIO;
+
 
 public class Card {
+	
+	public static final int WIDTH = 96;
+	public static final int HEIGHT = 128;
 	
 	//normal cats
 	public static final int CAT0 = 0;
@@ -18,10 +28,49 @@ public class Card {
 	public static final int ATTACK = 16;
 	public static final int EXPLODING_KITTEN = 17;
 	
+	//IGNORE THIS (card back image)
+	public static final int CARD_BACK = 18;
+	
+	private static Image[] images = new Image[19];
+	
+	static {
+		try {
+			images[CAT0] = getImage("tacocat.png");
+			images[CAT1] = getImage("rainbowcat.png");
+			images[CAT2] = getImage("beardcat.png");
+			images[CAT3] = getImage("cattermelon.png");
+			images[CAT4] = getImage("potatocat.png");
+			
+			images[DEFUSE] = getImage("defuse.png");
+			images[NOPE] = getImage("nope.png");
+			images[SKIP] = getImage("skip.png");
+			images[SHUFFLE] = getImage("shuffle.png");
+			images[SEE_THE_FUTURE] = getImage("seethefuture.png");
+			images[FAVOR] = getImage("favor.png");
+			images[ATTACK] = getImage("attack.png");
+			images[EXPLODING_KITTEN] = getImage("explodingkitten.jpg");
+			images[CARD_BACK] =  getImage("cardback.png");
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+		}
+	}
+	
 	private int type;
 	
 	public Card(int type) {
 		this.type = type;
+	}
+	
+	private static Image getImage(String fileName) throws IOException {
+		return ImageIO.read(Card.class.getResource(fileName))/*.getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT)*/;
+	}
+	
+	public static Image getCardBack() {
+		return images[CARD_BACK];
+	}
+	
+	public Image getImage() {
+		return images[type];
 	}
 	
 	public int getType() {

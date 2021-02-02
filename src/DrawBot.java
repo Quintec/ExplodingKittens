@@ -4,7 +4,7 @@ public class DrawBot extends Bot {
 	private ArrayList<Card> hand;
 
 	@Override
-	public void init(int myIndex) {
+	public void init(int myIndex, GameView gv) {
 		hand = new ArrayList<Card>();
 		
 	}

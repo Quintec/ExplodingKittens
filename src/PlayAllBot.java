@@ -5,11 +5,17 @@ public class PlayAllBot extends Bot {
 	
 	private ArrayList<Card> hand;
 	private int idx;
+	private int[] cards;
+	
+	private GameView gv;
 
 	@Override
-	public void init(int myIndex) {
+	public void init(int myIndex, GameView gv) {
 		hand = new ArrayList<Card>();
 		idx = myIndex;
+		cards = new int[5];
+		Arrays.fill(cards, 5);
+		this.gv = gv;
 	}
 
 	@Override
@@ -56,9 +62,15 @@ public class PlayAllBot extends Bot {
 				hand.remove(c);
 				return Action.play(c);
 			} else if (type == Card.FAVOR) {
-				int t = idx == 0 ? 1 : 0;
-				hand.remove(c);
-				return Action.target(c, t);
+				for (int i = 0; i < 5; i++) {
+					if (i == idx)
+						continue;
+					if (gv.isAlive(i) && gv.getNumCards(i) > 0) {
+						hand.remove(c);
+						return Action.target(c, i);
+					}
+				}
+				
 			}
 		}
 		return Action.draw();
@@ -77,11 +89,12 @@ public class PlayAllBot extends Bot {
 	@Override
 	public void receiveFavor(int playerIndex, Card card) {
 		hand.add(card);
+		cards[playerIndex]--;
 	}
 
 	@Override
 	public void cardDrawn(int playerIndex) {
-		
+		cards[playerIndex]++;
 	}
 
 	@Override

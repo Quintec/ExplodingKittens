@@ -12,7 +12,7 @@ public class Main {
 		Player[] ps = new Player[5];
 		for (int i = 0; i < 5; i++)
 			ps[i] = new Player(bots[i]);
-		Game g = new Game(ps);
+		Game g = new Game(ps, true, true);
 		g.start();
 		g.play();
 	}

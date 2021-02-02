@@ -7,7 +7,7 @@ public abstract class Bot {
 	 * Method called at the start of the game.
 	 * @param myIndex your player's index in the list of players
 	 */
-	public abstract void init(int myIndex);
+	public abstract void init(int myIndex, GameView view);
 	
 	/**
 	 * Method called at the start of the game to deal the starting hand.

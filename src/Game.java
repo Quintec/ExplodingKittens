@@ -5,16 +5,33 @@ public class Game {
 	
 	private Deck d;
 	private Player[] players;
+	private Display display;
 	
 	private boolean attacked;
 	private int cardsToDraw;
+	private GameView gv;
 	
-	public Game(Player[] pls) {
+	private boolean disp;
+	private boolean print;
+	
+	public Game(Player[] pls, boolean disp, boolean print) {
 		assert pls.length == 5;
 		
 		shuffle(pls);
+		
 		this.d = new Deck();
 		this.players = pls;
+		this.gv = new GameView(this);
+		
+		this.disp = disp;
+		this.print = print;
+		
+		if (disp)
+			this.display = new Display(players, true);
+	}
+	
+	public Player[] getPlayers() {
+		return players;
 	}
 	
 	//adapted from https://stackoverflow.com/a/1520212
@@ -32,7 +49,7 @@ public class Game {
 	public void start() {
 		for (int i = 0; i < players.length; i++) {
 			Player p = players[i];
-			p.setIdx(i);
+			p.init(i, gv);
 			p.setHand(d.dealHand());
 		}
 		this.attacked = false;
@@ -58,18 +75,24 @@ public class Game {
 	
 	public void round() {
 		out: for (int i = 0; i < players.length; i++) {
+			if (disp)
+				display.refresh();
 			if (!players[i].isPlaying())
 				continue;
 			if (numPlaying() == 1)
 				return;
-			System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
+			if (disp)
+				try {Thread.sleep(1000); } catch (InterruptedException e) {};
+			if (print)
+				System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
 			cardsToDraw = attacked ? 2 : 1;
 			this.attacked = false;
 			while (cardsToDraw > 0) {
 				Action a = players[i].getAction();
 				if (a.getType() == Action.DRAW_CARD) {
 					Card next = d.drawCard();
-					System.out.println("drawn " + next);
+					if (print)
+						System.out.println("drawn " + next);
 					if (next.getType() == Card.EXPLODING_KITTEN) {
 						if (players[i].hasDefuse()) {
 							players[i].removeDefuse();
@@ -102,7 +125,8 @@ public class Game {
 						}
 					}
 				} else {
-					System.out.println("playing " + a.getCard() + " against " + a.getTarget());
+					if (print)
+						System.out.println("playing " + a.getCard() + " against " + a.getTarget());
 					boolean play = prepCard(i, a.getCard(), a.getTarget());
 					if (play) {
 						if (a.isTargetted()) {
@@ -117,14 +141,21 @@ public class Game {
 	}
 	
 	private boolean prepCard(int i, Card toPlay, int tidx) {
+		if (disp) {
+			display.setTop(toPlay);
+			display.refresh();
+			try {Thread.sleep(1000); } catch (InterruptedException e) {};
+		}
 		for (int j = 0; j < players.length; j++) {
 			if (i == j)
 				continue;
 			Card against = players[j].getBot().cardPlayed(i, toPlay, tidx);
 			if (against != null) {
-				System.out.println("player " + j + " played nope");
+				if (print)
+					System.out.println("player " + j + " played nope");
 				if (against.getType() != Card.NOPE)
 					throw new RuntimeException("Bot " + players[j].getBot().getClass() + " tried to counter card with " + against);
+				players[j].removeNope();
 				return !prepCard(j, against, i);
 			}
 		}
@@ -149,16 +180,26 @@ public class Game {
 		default:
 			throw new RuntimeException("[GAME] Unplayable card in playCard " + c);
 		}
+		if (disp) {
+			display.setTop(c);
+			display.refresh();
+		}
 	}
 	
 	private void playCardAt(int idx, Card c, int tidx) {
 		switch (c.getType()) {
 		case Card.FAVOR:
-			System.out.println("player " + idx + " getting favor");
+			if (print)
+				System.out.println("player " + idx + " getting favor");
 			Card card = players[tidx].giveFavor(idx);
 			players[idx].receiveFavor(tidx, card);
-			System.out.println("received " + card);
+			if (print)
+				System.out.println("received " + card);
 			break;
+		}
+		if (disp) {
+			display.setTop(c);
+			display.refresh();
 		}
 	}
 }
