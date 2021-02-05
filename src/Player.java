@@ -70,7 +70,7 @@ public class Player {
 	}
 	
 	public void setHand(Card[] h) {
-		System.out.println(Arrays.toString(h));
+		//System.out.println(Arrays.toString(h));
 		this.hand.addAll(Arrays.asList(h));
 		this.bot.setHand(h);
 	}
@@ -88,7 +88,6 @@ public class Player {
 		this.hand.add(c);
 		this.bot.selfCardDrawn(c);
 	}
-	
 	
 	
 	public Action getAction() {
@@ -115,7 +114,14 @@ public class Player {
 	}
 	
 	public void receiveFavor(int pidx, Card c) {
-		this.hand.add(c);
-		this.bot.receiveFavor(pidx, c);
+		if (c != null) {
+			this.hand.add(c);
+			this.bot.receiveFavor(pidx, c);
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return this.bot.getClass().getCanonicalName();
 	}
 }

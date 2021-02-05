@@ -1,19 +1,20 @@
-
+import java.util.*;
 public class Main {
 	public static void main(String[] args) {
 		//there MUST be exactly 5 players
 		Bot[] bots = new Bot[] {new PlayAllBot(), new PlayAllBot(), new PlayAllBot(), new PlayAllBot(), new PlayAllBot()};
 		
-		playGame(bots);
+		playGames(bots, 1);
 	}
 	
-	public static void playGame(Bot[] bots) {
+	public static void playGames(Bot[] bots, int num) {
 		assert bots.length == 5;
-		Player[] ps = new Player[5];
-		for (int i = 0; i < 5; i++)
-			ps[i] = new Player(bots[i]);
-		Game g = new Game(ps, true, true);
-		g.start();
-		g.play();
+		Game g = new Game(bots, true, true);//first boolean: display or not
+											//second boolean: print debug statements or not
+		for (int i = 0; i < num; i++) {
+			g.start();
+			g.play();
+		}
+		System.out.println(Arrays.toString(g.getResults()));
 	}
 }

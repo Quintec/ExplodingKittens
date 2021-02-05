@@ -29,6 +29,7 @@ public class PlayAllBot extends Bot {
 		while (it.hasNext()) {
 			Card c = it.next();
 			if (c.getType() == Card.NOPE) {
+				//System.out.println("player " + idx  + " playing nope");
 				it.remove();
 				return c;
 			}
@@ -44,6 +45,7 @@ public class PlayAllBot extends Bot {
 			Card c = it.next();
 			if (c.getType() == Card.DEFUSE) {
 				it.remove();
+				//System.out.println("player " + idx  + " playing defuse");
 			}
 		}
 		return 0;
@@ -51,7 +53,9 @@ public class PlayAllBot extends Bot {
 
 	@Override
 	public void selfCardDrawn(Card card) {
+		//System.out.println("getting card: "+ card);
 		hand.add(card);
+		//System.out.println("hand: "+ hand);
 	}
 
 	@Override
@@ -60,6 +64,7 @@ public class PlayAllBot extends Bot {
 			int type = c.getType();
 			if (type > 11 && type != 15) {
 				hand.remove(c);
+				//System.out.println("player " + idx  + " playing " + c);
 				return Action.play(c);
 			} else if (type == Card.FAVOR) {
 				for (int i = 0; i < 5; i++) {
@@ -67,6 +72,7 @@ public class PlayAllBot extends Bot {
 						continue;
 					if (gv.isAlive(i) && gv.getNumCards(i) > 0) {
 						hand.remove(c);
+						//System.out.println("player " + idx  + " playing " + c);
 						return Action.target(c, i);
 					}
 				}
@@ -78,6 +84,7 @@ public class PlayAllBot extends Bot {
 
 	@Override
 	public Card giveFavor(int playerIndex) {
+		//System.out.println("faovr with: " + hand);
 		return hand.remove(0);
 	}
 
@@ -88,8 +95,10 @@ public class PlayAllBot extends Bot {
 
 	@Override
 	public void receiveFavor(int playerIndex, Card card) {
-		hand.add(card);
-		cards[playerIndex]--;
+		if (card != null) {
+			hand.add(card);
+			cards[playerIndex]--;
+		}
 	}
 
 	@Override

@@ -3,9 +3,13 @@ import java.util.concurrent.*;
 
 public class Game {
 	
+	public static final int SLEEP = 3000;
+	
 	private Deck d;
 	private Player[] players;
 	private Display display;
+	
+	private Bot[] bots;
 	
 	private boolean attacked;
 	private int cardsToDraw;
@@ -14,20 +18,21 @@ public class Game {
 	private boolean disp;
 	private boolean print;
 	
-	public Game(Player[] pls, boolean disp, boolean print) {
-		assert pls.length == 5;
+	private int[] wins;
+	
+	public Game(Bot[] bots, boolean disp, boolean print) {
+		assert bots.length == 5;
 		
-		shuffle(pls);
-		
-		this.d = new Deck();
-		this.players = pls;
+		this.bots = bots;
 		this.gv = new GameView(this);
 		
 		this.disp = disp;
 		this.print = print;
 		
+		this.wins = new int[bots.length];
+		
 		if (disp)
-			this.display = new Display(players, true);
+			this.display = new Display(true);
 	}
 	
 	public Player[] getPlayers() {
@@ -36,7 +41,7 @@ public class Game {
 	
 	//adapted from https://stackoverflow.com/a/1520212
 	private void shuffle(Player[] ar) {
-		Random rnd = ThreadLocalRandom.current();
+		Random rnd = new Random(System.currentTimeMillis());
 		for (int i = ar.length - 1; i > 0; i--)
 		{
 			int index = rnd.nextInt(i + 1);
@@ -47,6 +52,15 @@ public class Game {
 	}
 	
 	public void start() {
+		this.d = new Deck();
+		this.players = new Player[bots.length];
+		for (int i = 0; i < bots.length; i++) {
+			players[i] = new Player(bots[i]);
+		}
+		if (disp)
+			this.display.setPlayers(players);
+		//shuffle(players);
+		
 		for (int i = 0; i < players.length; i++) {
 			Player p = players[i];
 			p.init(i, gv);
@@ -57,12 +71,21 @@ public class Game {
 		d.startShuffle();
 	}
 	
+	public int[] getResults() {
+		return wins;
+	}
+	
 	public void play() {
 		while (numPlaying() > 1)
 			round();
-		for (Player p : players) {
-			if (p.isPlaying())
-				System.out.println("Player " + p.getBot().getClass().getCanonicalName() + p.getIdx() + " wins");//PLACEHOLDER - return player? count wins, do match
+		for (int i = 0; i < players.length; i++) {
+			Player p = players[i];
+			if (p.isPlaying()) {
+				if (print)
+					System.out.println("Player " + i + " (" + p.getBot().getClass().getCanonicalName() + ") wins");
+				wins[i]++;
+				break;
+			}
 		}
 	}
 	
@@ -74,20 +97,24 @@ public class Game {
 	}
 	
 	public void round() {
-		out: for (int i = 0; i < players.length; i++) {
-			if (disp)
+		int i = (int)(Math.random() * players.length);
+		out: for (int count = 0; count < players.length; count++) {
+			i = (i + 1) % players.length;
+			if (disp) {
+				display.setIdx(i);
 				display.refresh();
+			}
 			if (!players[i].isPlaying())
 				continue;
 			if (numPlaying() == 1)
 				return;
-			if (disp)
-				try {Thread.sleep(1000); } catch (InterruptedException e) {};
 			if (print)
 				System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
 			cardsToDraw = attacked ? 2 : 1;
 			this.attacked = false;
 			while (cardsToDraw > 0) {
+				if (disp)
+					try {Thread.sleep(SLEEP); } catch (InterruptedException e) {};
 				Action a = players[i].getAction();
 				if (a.getType() == Action.DRAW_CARD) {
 					Card next = d.drawCard();
@@ -144,10 +171,12 @@ public class Game {
 		if (disp) {
 			display.setTop(toPlay);
 			display.refresh();
-			try {Thread.sleep(1000); } catch (InterruptedException e) {};
+			try {Thread.sleep(SLEEP); } catch (InterruptedException e) {};
 		}
 		for (int j = 0; j < players.length; j++) {
 			if (i == j)
+				continue;
+			if (!players[j].isPlaying())
 				continue;
 			Card against = players[j].getBot().cardPlayed(i, toPlay, tidx);
 			if (against != null) {
@@ -191,7 +220,11 @@ public class Game {
 		case Card.FAVOR:
 			if (print)
 				System.out.println("player " + idx + " getting favor");
-			Card card = players[tidx].giveFavor(idx);
+			Card card;
+			if (players[tidx].getHand().isEmpty())
+				card = null;
+			else
+				card = players[tidx].giveFavor(idx);
 			players[idx].receiveFavor(tidx, card);
 			if (print)
 				System.out.println("received " + card);
