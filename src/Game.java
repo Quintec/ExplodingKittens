@@ -110,6 +110,8 @@ public class Game {
 				return;
 			if (print)
 				System.out.println("player " + i + " (" + players[i].getBot().getClass().getCanonicalName() + ") turn");
+			//for (int a = 0; a < players.length; a++)
+			//	System.out.println("player " + a + players[a].isPlaying() + ": " + players[a].getHand());
 			cardsToDraw = attacked ? 2 : 1;
 			this.attacked = false;
 			while (cardsToDraw > 0) {
@@ -124,6 +126,9 @@ public class Game {
 						if (players[i].hasDefuse()) {
 							players[i].removeDefuse();
 							int eidx = players[i].getBot().selfExplodingKittenDrawn();
+							cardsToDraw--;
+							if (print)
+								System.out.println("replaced " + next);
 							d.insert(next, eidx);
 							for (int j = 0; j < players.length; j++) {
 								if (i == j)
@@ -134,6 +139,8 @@ public class Game {
 						} else {
 							players[i].getBot().selfExplodingKittenDrawn();
 							players[i].lose();
+							if (print)
+								System.out.println("player exploded");
 							for (int j = 0; j < players.length; j++) {
 								if (i == j)
 									continue;
@@ -221,10 +228,13 @@ public class Game {
 			if (print)
 				System.out.println("player " + idx + " getting favor");
 			Card card;
+			if (!players[tidx].isPlaying())
+				throw new RuntimeException("player " + idx + " requested favor from dead player");
 			if (players[tidx].getHand().isEmpty())
 				card = null;
-			else
+			else {
 				card = players[tidx].giveFavor(idx);
+			}
 			players[idx].receiveFavor(tidx, card);
 			if (print)
 				System.out.println("received " + card);

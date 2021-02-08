@@ -45,6 +45,7 @@ public class PlayAllBot extends Bot {
 			Card c = it.next();
 			if (c.getType() == Card.DEFUSE) {
 				it.remove();
+				break;
 				//System.out.println("player " + idx  + " playing defuse");
 			}
 		}
