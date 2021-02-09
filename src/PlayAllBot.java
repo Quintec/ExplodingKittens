@@ -49,7 +49,7 @@ public class PlayAllBot extends Bot {
 				//System.out.println("player " + idx  + " playing defuse");
 			}
 		}
-		return 0;
+		return gv.getDeckSize() > 1 ? 1 : 0;
 	}
 
 	@Override

@@ -61,4 +61,8 @@ public class Deck {
 	public void insert(Card c, int idx) {
 		cards.add(idx, c);
 	}
+	
+	public int getSize() {
+		return cards.size();
+	}
 }

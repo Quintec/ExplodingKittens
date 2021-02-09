@@ -39,6 +39,10 @@ public class Game {
 		return players;
 	}
 	
+	public Deck getDeck() {
+		return d;
+	}
+	
 	//adapted from https://stackoverflow.com/a/1520212
 	private void shuffle(Player[] ar) {
 		Random rnd = new Random(System.currentTimeMillis());

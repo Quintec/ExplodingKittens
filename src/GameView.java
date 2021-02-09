@@ -25,5 +25,13 @@ public class GameView {
 	public int getNumCards(int idx) {
 		return game.getPlayers()[idx].getHand().size();
 	}
+	
+	/**
+	 * Method that returns the number of cards left in the deck.
+	 * @return the number of cards in the deck
+	 */
+	public int getDeckSize() {
+		return game.getDeck().getSize();
+	}
 }
 
