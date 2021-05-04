@@ -93,13 +93,19 @@ public class Player {
 	public Action getAction() {
 		Action a = this.bot.takeTurn();
 		if (a.getType() == Action.PLAY_CARD) {
-			if (!this.hand.contains(a.getCard()))
-				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " tried to play card not in hand " + a.getCard().toString());
-			if (a.getCard().getType() < 10)
-				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " tried to play unplayable card " + a.getCard().toString());
+			if (!this.hand.contains(a.getCard())) {
+				System.err.println("Bot " + bot.getClass().getCanonicalName() + " tried to play card not in hand " + a.getCard().toString());
+				return Action.draw();
+			}
+			if (a.getCard().getType() < 10) {
+				System.err.println("Bot " + bot.getClass().getCanonicalName() + " tried to play unplayable card " + a.getCard().toString());
+				return Action.draw();
+			}
 			int t = a.getTarget();
-			if (a.isTargetted() && (t < 0 || t > 4))
-				throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " chose invalid target " + t + " for card " + a.getCard());
+			if (a.isTargetted() && (t < 0 || t > 4)) {
+				System.err.println("Bot " + bot.getClass().getCanonicalName() + " chose invalid target " + t + " for card " + a.getCard());
+				return Action.draw();
+			}
 			this.hand.remove(a.getCard());
 		}
 		return a;
@@ -107,8 +113,11 @@ public class Player {
 	
 	public Card giveFavor(int pidx) {
 		Card c = this.bot.giveFavor(pidx);
-		if (!this.hand.contains(c))
-			throw new RuntimeException("Bot " + bot.getClass().getCanonicalName() + " tried to give favor of card not in hand " + c);
+		if (!this.hand.contains(c)) {
+			System.err.println("Bot " + bot.getClass().getCanonicalName() + " tried to give favor of card not in hand " + c);
+			Card t = this.hand.remove(0);
+			return t;
+		}
 		this.hand.remove(c);
 		return c;
 	}

@@ -20,6 +20,8 @@ public class Game {
 	
 	private int[] wins;
 	
+	private int endIdx;
+	
 	public Game(Bot[] bots, boolean disp, boolean print) {
 		assert bots.length == 5;
 		
@@ -80,6 +82,7 @@ public class Game {
 	}
 	
 	public void play() {
+		endIdx = (int)(Math.random() * players.length);
 		while (numPlaying() > 1)
 			round();
 		for (int i = 0; i < players.length; i++) {
@@ -101,9 +104,10 @@ public class Game {
 	}
 	
 	public void round() {
-		int i = (int)(Math.random() * players.length);
+		int i = endIdx;
 		out: for (int count = 0; count < players.length; count++) {
 			i = (i + 1) % players.length;
+			System.out.println("loop inc " + i);
 			if (disp) {
 				display.setIdx(i);
 				display.refresh();
@@ -168,6 +172,7 @@ public class Game {
 					boolean play = prepCard(i, a.getCard(), a.getTarget());
 					if (play) {
 						if (a.isTargetted()) {
+							System.out.println("player " + i + " target");
 							playCardAt(i, a.getCard(), a.getTarget());
 						} else {
 							playCard(i, a.getCard());
@@ -176,6 +181,7 @@ public class Game {
 				}
 			}
 		}
+		endIdx = i;
 	}
 	
 	private boolean prepCard(int i, Card toPlay, int tidx) {
@@ -190,13 +196,15 @@ public class Game {
 			if (!players[j].isPlaying())
 				continue;
 			Card against = players[j].getBot().cardPlayed(i, toPlay, tidx);
-			if (against != null) {
+			if (against != null && players[j].getHand().contains(against)) {
 				if (print)
 					System.out.println("player " + j + " played nope");
 				if (against.getType() != Card.NOPE)
 					throw new RuntimeException("Bot " + players[j].getBot().getClass() + " tried to counter card with " + against);
 				players[j].removeNope();
 				return !prepCard(j, against, i);
+			} else if (against != null) {
+				System.err.println("player " + j + " countered with card not in hand " + against);
 			}
 		}
 		return true;
@@ -243,6 +251,8 @@ public class Game {
 			if (print)
 				System.out.println("received " + card);
 			break;
+		default:
+			throw new RuntimeException(c + " tried to be targetted");
 		}
 		if (disp) {
 			display.setTop(c);

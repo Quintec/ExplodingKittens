@@ -24,10 +24,13 @@ public class Display {
 		
 		log = new JFrame("Event log");
 		JTextArea logger = new JTextArea();
+		JScrollPane sp = new JScrollPane(logger); 
 		FrameLogger fl = new FrameLogger(logger, "Log");
+		FrameLogger fl2 = new FrameLogger(logger, "ERR");
 		System.setOut(new PrintStream(fl));
-		log.add(logger);
-		log.setSize(300, frame.getHeight());
+		System.setErr(new PrintStream(fl2));
+		log.add(sp);
+		log.setSize(370, frame.getHeight());
 		log.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		log.setLocation(frame.getX() + frame.getWidth(), frame.getY());
 		log.setVisible(true);
